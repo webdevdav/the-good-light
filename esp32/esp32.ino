@@ -30,7 +30,6 @@ static uint8_t state=0;
 const char* ssid = "XXXXXXXX";
 const char* password =  "XXXXXXXX";
 
-
 // PWM pins
 const int ledPin0 = 12;  
 const int ledPin1 = 14; 
@@ -104,6 +103,7 @@ void setup(){
 
   // http variable
   rest.variable("pwmValue",&pwmValue);
+  rest.variable("onOff",&onOff);
 
   // http functions
   rest.function("toggle",toggleLightHandler);
@@ -114,6 +114,7 @@ void setup(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
+
   // network settings
   IPAddress ip(192,168,0,200);   
   IPAddress gateway(192,168,0,1);   
@@ -122,7 +123,7 @@ void setup(){
   //Serial.println("WiFi connected with IP: ");
   //Serial.println(WiFi.localIP());
  
-  
+  // start webserver
   server.begin();
 }
 
