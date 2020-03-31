@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
    View,
-   Text,
    StyleSheet,
    Button,
    TouchableWithoutFeedback,
@@ -20,37 +19,26 @@ import MainButton from "../components/MainButton";
 const ConnectScreen = props => {
    const [enteredIPorDNS, setEnteredIPorDNS] = useState("");
    const [connection, setConnection] = useState(false);
-   const [buttonWidth, setButtonWidth] = useState(
-      Dimensions.get("window").width / 4
-   );
    const [deviceProps, setDeviceProps] = useState({});
+
+   const buttonWidth = Dimensions.get("window").width / 4;
+   let connectionStatus;
 
    const resetInputHandler = () => {
       setEnteredIPorDNS("");
    };
 
    const confirmInputHandler = () => {
-      fetch("http://" + enteredIPorDNS + "/licht")
+      fetch("http://" + enteredIPorDNS + "/variables")
          .then(response => {
             if (response.status === 200) {
                return response.json();
             }
-            Alert.alert(
-               "Connection failed!",
-               "Input has to be a valid IP address or a DNS name",
-               [
-                  {
-                     text: "Okay",
-                     style: "destructive"
-                     //  onPress: resetInputHandler
-                  }
-               ]
-            );
          })
-         .then(json => setDeviceProps(json))
-         .then(() => {
-            setConnection(true);
+         .then(json => {
+            setDeviceProps(json);
          })
+         .then(() => setConnection(true))
          .catch(err => {
             setConnection(false);
             Alert.alert(
@@ -60,28 +48,13 @@ const ConnectScreen = props => {
                   {
                      text: "Okay",
                      style: "destructive"
-                     //   onPress: resetInputHandler
                   }
                ]
             );
-            console.log("Fehler: " + err);
          });
 
       Keyboard.dismiss();
    };
-
-   useEffect(() => {
-      const updateLayout = () => {
-         setButtonWidth(Dimensions.get("window").width / 4);
-      };
-      Dimensions.addEventListener("change", updateLayout);
-
-      return () => {
-         Dimensions.removeEventListener("change", updateLayout);
-      };
-   });
-
-   let connectionStatus;
 
    if (connection) {
       connectionStatus = (
@@ -91,6 +64,7 @@ const ConnectScreen = props => {
             <BodyText>{"ID: " + deviceProps.id}</BodyText>
             <MainButton
                onPress={() => {
+                  setConnection(false);
                   props.navigation.navigate({
                      routeName: "DeviceControlScreen",
                      params: {

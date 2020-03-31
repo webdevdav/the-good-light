@@ -4,43 +4,27 @@ import { View, Text, StyleSheet, Slider } from "react-native";
 const DeviceControlScreen = props => {
    const device = props.navigation.getParam("device");
    const url = props.navigation.getParam("url");
-   const [value, setValue] = useState(device.licht);
+   const [pwmValue, setPwmValue] = useState(device.variables.pwmValue);
+   const [displayPercent, setDisplayPercent] = useState(
+      ((device.variables.pwmValue / 255) * 100).toFixed(0)
+   );
 
-   const changeValueHandler = lightValue => {
-      fetch("http://" + url + "/value?params=" + lightValue)
-         .then(response => {
-            if (response.status === 200) {
-               return response.json();
-            }
-         })
-         .then(json => {
-            setValue(lightValue);
-            console.log(json);
-         })
-         .catch(err => {
-            setConnection(false);
-            Alert.alert(
-               "Connection failed!",
-               "Input has to be a valid IP address or a DNS name",
-               [
-                  {
-                     text: "Okay",
-                     style: "destructive"
-                  }
-               ]
-            );
-            console.log("Fehler: " + err);
-         });
+   const changeValueHandler = updatedPwmValue => {
+      fetch("http://" + url + "/change?params=" + updatedPwmValue);
+      setPwmValue(updatedPwmValue);
+      const percent = ((updatedPwmValue / 255) * 100).toFixed(0);
+      setDisplayPercent(percent);
    };
    return (
       <View style={styles.container}>
          <Text style={styles.title}>{device.name}</Text>
-         <Text style={styles.title}>{value}</Text>
          <Text style={styles.title}>{url}</Text>
+         <Text style={styles.title}>{displayPercent + "%"}</Text>
+
          <Slider
-            onValueChange={value => changeValueHandler(value)}
+            onValueChange={pwmValue => changeValueHandler(pwmValue)}
             style={{ width: 200, height: 40 }}
-            value={device.licht}
+            value={pwmValue}
             minimumValue={0}
             maximumValue={255}
             minimumTrackTintColor="#FFFFFF"
@@ -62,6 +46,6 @@ const styles = StyleSheet.create({
    }
 });
 DeviceControlScreen.navigationOptions = {
-   headerTitle: "Good Light"
+   headerTitle: "Connected Device"
 };
 export default DeviceControlScreen;
