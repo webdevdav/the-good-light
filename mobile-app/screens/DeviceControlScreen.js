@@ -1,35 +1,44 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Slider } from "react-native";
+import MainButton from "../components/MainButton";
 
 const DeviceControlScreen = props => {
    const device = props.navigation.getParam("device");
    const url = props.navigation.getParam("url");
    const [pwmValue, setPwmValue] = useState(device.variables.pwmValue);
+   const [onOff, setOnOff] = useState(device.variables.onOff);
    const [displayPercent, setDisplayPercent] = useState(
-      ((device.variables.pwmValue / 255) * 100).toFixed(0)
+      Math.ceil((device.variables.pwmValue / 255) * 100)
    );
 
    const changeValueHandler = updatedPwmValue => {
-      fetch("http://" + url + "/change?params=" + updatedPwmValue);
+      fetch(url + "/change?params=" + updatedPwmValue);
       setPwmValue(updatedPwmValue);
-      const percent = ((updatedPwmValue / 255) * 100).toFixed(0);
+      const percent = Math.ceil((updatedPwmValue / 255) * 100);
       setDisplayPercent(percent);
+   };
+
+   const toggleLightHandler = () => {
+      fetch(url + "/toggle");
+      setOnOff(!onOff);
    };
    return (
       <View style={styles.container}>
          <Text style={styles.title}>{device.name}</Text>
-         <Text style={styles.title}>{url}</Text>
+         <Text style={styles.title}>{url.split("/")[2]}</Text>
          <Text style={styles.title}>{displayPercent + "%"}</Text>
-
          <Slider
             onValueChange={pwmValue => changeValueHandler(pwmValue)}
             style={{ width: 200, height: 40 }}
             value={pwmValue}
-            minimumValue={0}
+            minimumValue={1}
             maximumValue={255}
             minimumTrackTintColor="#FFFFFF"
             maximumTrackTintColor="#000000"
          />
+         <MainButton onPress={toggleLightHandler}>
+            {onOff ? "Off" : "On"}
+         </MainButton>
       </View>
    );
 };

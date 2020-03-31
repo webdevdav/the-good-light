@@ -8,7 +8,9 @@ import {
    Alert,
    Dimensions,
    ScrollView,
-   KeyboardAvoidingView
+   KeyboardAvoidingView,
+   Switch,
+   Text
 } from "react-native";
 import BodyText from "../components/BodyText";
 import Card from "../components/Card";
@@ -20,16 +22,21 @@ const ConnectScreen = props => {
    const [enteredIPorDNS, setEnteredIPorDNS] = useState("");
    const [connection, setConnection] = useState(false);
    const [deviceProps, setDeviceProps] = useState({});
+   const [https, setHttps] = useState(false);
 
    const buttonWidth = Dimensions.get("window").width / 4;
    let connectionStatus;
-
+   let preUrl = https ? "https://" : "http://";
    const resetInputHandler = () => {
       setEnteredIPorDNS("");
    };
 
+   const securityHandler = () => {
+      setHttps(!https);
+   };
+
    const confirmInputHandler = () => {
-      fetch("http://" + enteredIPorDNS + "/variables")
+      fetch(preUrl + enteredIPorDNS + "/variables")
          .then(response => {
             if (response.status === 200) {
                return response.json();
@@ -69,7 +76,7 @@ const ConnectScreen = props => {
                      routeName: "DeviceControlScreen",
                      params: {
                         device: deviceProps,
-                        url: enteredIPorDNS
+                        url: preUrl + enteredIPorDNS
                      }
                   });
                }}
@@ -101,6 +108,10 @@ const ConnectScreen = props => {
                         onChangeText={input => setEnteredIPorDNS(input)}
                         value={enteredIPorDNS}
                      />
+                     <View style={styles.switchContainer}>
+                        <Text>HTTPS</Text>
+                        <Switch onValueChange={securityHandler} value={https} />
+                     </View>
                      <View style={styles.buttonContainer}>
                         <View style={{ width: buttonWidth }}>
                            <Button
@@ -155,6 +166,11 @@ const styles = StyleSheet.create({
    },
    summaryContainer: {
       margin: 20,
+      alignItems: "center"
+   },
+   switchContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
       alignItems: "center"
    }
 });
