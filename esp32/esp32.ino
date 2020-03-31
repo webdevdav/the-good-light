@@ -65,7 +65,6 @@ void IRAM_ATTR isrRotated() {
     }
     state = (s >> 2);
    
- // Serial.print("pwmValue ");
  // Serial.println(pwmValue);
  
 }
@@ -81,6 +80,7 @@ void setup(){
   // configure LED PWM functionalitites
   ledcSetup(ledArray, freq, resolution);
   
+
   // attach the channel to the GPIO to be controlled
   ledcAttachPin(ledPin0, ledArray);
   ledcAttachPin(ledPin1, ledArray);
